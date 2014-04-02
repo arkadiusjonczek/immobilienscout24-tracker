@@ -15,19 +15,26 @@ $simple_html_dom = __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR .
 
 require_once $simple_html_dom;
 
+// use timestamp for content debugging
 $timestamp = time();
-$url_pattern = "http://www.immobilienscout24.de/Suche/S-T/P-{0}/Wohnung-Miete/Nordrhein-Westfalen/Dortmund/Innenstadt/-/-/EURO--400,00";
 
 // found entries on website
 $entries = array();
 
-// get real page count after first request
+// get real page count from html content after first request
 $pages = 1;
+
+// create url for the http requests based on the config search settings
+$url_pattern = str_replace(
+    array_keys($config['search']), 
+    array_values($config['search']), 
+    $config['url_pattern']
+);
 
 // get entries for all following pages
 for ($i = 1; $i <= $pages; $i++)
 {
-    $url = str_replace('{0}', $i, $url_pattern);
+    $url = str_replace('{page}', $i, $url_pattern);
 
     $content = get_content($url);
     $html = str_get_html($content);
