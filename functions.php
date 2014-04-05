@@ -38,7 +38,7 @@ function get_content($url)
 function get_entries($html)
 {
     $base_url = "http://www.immobilienscout24.de";
-    $expose_url_pattern = "http://www.immobilienscout24.de/expose/{0}";
+    $expose_url_pattern = "http://www.immobilienscout24.de/expose/{id}";
     
     // found entries
     $entries = array();
@@ -72,7 +72,7 @@ function get_entries($html)
         $entry['price'] = $price;
         $entry['area'] = $area;
         $entry['rooms'] = $rooms;
-        $entry['url'] = str_replace('{0}', $id, $expose_url_pattern);
+        $entry['url'] = str_replace('{id}', $id, $expose_url_pattern);
         $entry['picture_url'] = $picture_url;
         $entries["$id"] = $entry;
     }

@@ -58,7 +58,6 @@ $db_entries = array();
 $new_entries = array();
 $new_entries_full = array();
 $existing_entries = array();
-$old_entries = array();
 
 try
 {
@@ -105,38 +104,12 @@ try
         }
         else
         {
-            /*debug($db_entries[$id]['title'], 'DB');
-            debug($entry['title'], 'HTML');
-            debug(mb_detect_encoding($db_entries[$id]['title']), 'DB encoding');
-            debug(mb_detect_encoding($entry['title']), 'HTML encoding');*/
-
             $new_entries[] = $id;
         }
     }
     
     debug($existing_entries, 'Existing Entries');
     debug($new_entries, 'New Entries');
-
-    // look for old entries to delete
-    /*if (!empty($db_entries))
-    {
-        foreach ($db_entries as $id)
-        {
-            if (!in_array($id, $existing_entries))
-            {
-                $old_entries[] = $id;
-            }
-        }
-    }
-    
-    debug($old_entries, 'Old Entries');
-
-    // delete old entries in db
-    foreach ($old_entries as $id)
-    {
-        $stmt = $pdo->prepare('DELETE FROM entries WHERE id = ?');
-        $stmt->execute(array($id));
-    }*/
     
     // add new entries to db
     foreach ($new_entries as $id)
@@ -173,14 +146,12 @@ try
     {
         if (count($new_entries_full) > 0)
         {
-            if (count($argv) >= 2 && $argv[1] === '-console')
+            if (count($argv) >= 2 && in_array('-console', $argv))
             {
                 print_r($new_entries_full);
             }
             else
             {
-                // echo $debug = print_r($new_entries_full, true);
-                
                 $mail_sender = $config['mail_sender'];
                 $mail_receiver = $config['mail_receiver'];
                 $mail_header = 'From: ' . $mail_sender . "\n" .
