@@ -5,7 +5,7 @@ ini_set('display_errors', '1');
 
 if (!file_exists('config.php'))
 {
-    die("Config file 'config.php' doesn't exist. Please use 'config.sample.php' to create one.");
+    die("Config file 'config.php' doesn't exist. Please use 'config.sample.php' to create one.\r\n");
 }
 
 require_once 'config.php';
@@ -15,43 +15,79 @@ $simple_html_dom = __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR .
 
 require_once $simple_html_dom;
 
+// if user runs script using -console parameter
+$is_console = count($argv) >= 2 && in_array('-console', $argv);
+
 // use timestamp for content debugging
 $timestamp = time();
 
 // found entries on website
 $entries = array();
 
-// get real page count from html content after first request
-$pages = 1;
+// the search url for the different districts
+$search_urls = array();
 
-// create url for the http requests based on the config search settings
-$url_pattern = str_replace(
-    array_keys($config['search']), 
-    array_values($config['search']), 
-    $config['url_pattern']
-);
-
-// get entries for all following pages
-for ($i = 1; $i <= $pages; $i++)
+// create search url for every given district
+foreach ($config['search']['district'] as $district)
 {
-    $url = str_replace('{page}', $i, $url_pattern);
+    $search_keys = array(
+        '{state}', '{city}', '{district}', '{base_rent}'
+    );
 
-    $content = get_content($url);
-    $html = str_get_html($content);
-    
-    debug_content($i . '.html', $content, $timestamp);
+    $search_values = array(
+        $config['search']['state'],
+        $config['search']['city'],
+        $district,
+        $config['search']['base_rent']
+    );
 
-    $entries_page = get_entries($html);
-    $entries = $entries + $entries_page;
+    // create url for the http requests based on the config search criteas
+    $url_pattern = str_replace(
+        $search_keys, 
+        $search_values, 
+        $config['url_pattern']
+    );
 
-    // get page count only after first run
-    if ($i === 1)
+    $search_urls[] = $url_pattern;
+}
+
+// consider every given district
+foreach ($search_urls as $search_url)
+{
+    // get real page count from html content after first request
+    $pages = 1;
+
+    // get entries of all pages
+    for ($i = 1; $i <= $pages; $i++)
     {
-        $ul_pager = $html->find('ul[data-is24-qa=paging_pages]');
-        $pages = (int) $ul_pager[0]->last_child()->children(0)->innertext;
+        $url = str_replace('{page}', $i, $search_url);
+
+        if ($is_console)
+        {
+            echo 'Parsing ' . $url . "\r\n";
+        }
+
+        $content = get_content($url);
+        $html = str_get_html($content);
+
+        $entries_page = get_entries($html);
+        $entries = $entries + $entries_page;
+
+        // get page count only after first run
+        if ($i === 1)
+        {
+            $ul_pager = $html->find('ul[data-is24-qa=paging_pages]');
+
+            // get page count only if paging element was found
+            if ($ul_pager)
+            {
+                $pages = (int) $ul_pager[0]->last_child()->children(0)->innertext;
+            }
+        }
+        
+        unset($content);
+        unset($html);
     }
-    
-    unset($content);
 }
 
 $db_entries = array();
@@ -146,7 +182,7 @@ try
     {
         if (count($new_entries_full) > 0)
         {
-            if (count($argv) >= 2 && in_array('-console', $argv))
+            if ($is_console)
             {
                 print_r($new_entries_full);
             }
