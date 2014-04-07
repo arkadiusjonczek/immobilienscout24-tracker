@@ -77,8 +77,6 @@ function get_entries($html)
         $entries["$id"] = $entry;
     }
     
-    unset($html);
-    
     return $entries;
 }
 

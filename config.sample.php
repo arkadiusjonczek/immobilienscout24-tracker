@@ -3,7 +3,8 @@
 // Sample config file
 
 $config = array(
-    'search' => array(
+    'debug' => false,
+	'search' => array(
 		'state' => 'Nordrhein-Westfalen',
 		'city' => 'Dortmund',
 		'district' => array(

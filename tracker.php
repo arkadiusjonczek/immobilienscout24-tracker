@@ -73,6 +73,11 @@ foreach ($search_urls as $search_url)
         $entries_page = get_entries($html);
         $entries = $entries + $entries_page;
 
+        if ($is_console)
+        {
+            echo 'Found ' . count($entries_page) . ' Entries' . "\r\n";
+        }
+
         // get page count only after first run
         if ($i === 1)
         {
@@ -82,6 +87,11 @@ foreach ($search_urls as $search_url)
             if ($ul_pager)
             {
                 $pages = (int) $ul_pager[0]->last_child()->children(0)->innertext;
+
+                if ($is_console)
+                {
+                    echo 'Found ' . $pages . ' Pages' . "\r\n";
+                }
             }
         }
         
@@ -127,8 +137,11 @@ try
         );
     }
     
-    debug(array_keys($entries), 'Found Entries');
-    debug(array_keys($db_entries), 'DB Entries');
+    if ($config['debug'] === true)
+    {
+        debug(array_keys($entries), 'Found Entries');
+        debug(array_keys($db_entries), 'DB Entries');
+    }
         
     // look for new and existing entries
     // new entries have not same id AND title as an existing entry
@@ -143,9 +156,12 @@ try
             $new_entries[] = $id;
         }
     }
-    
-    debug($existing_entries, 'Existing Entries');
-    debug($new_entries, 'New Entries');
+
+    if ($config['debug'] === true)
+    {
+        debug($existing_entries, 'Existing Entries');
+        debug($new_entries, 'New Entries');
+    }
     
     // add new entries to db
     foreach ($new_entries as $id)
@@ -184,6 +200,8 @@ try
         {
             if ($is_console)
             {
+                echo '' . count($new_entries_full) . ' New Entries' . "\r\n";
+
                 print_r($new_entries_full);
             }
             else
