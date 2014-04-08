@@ -26,4 +26,4 @@ The output are the found entries array using the *print_r()* function.
 
 License
 -------
-Copyright &copy; 2014 Arkadius Jonczek
+Project is available under the [MIT license] (http://opensource.org/licenses/MIT).
