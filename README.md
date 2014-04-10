@@ -16,13 +16,17 @@ Set up cronjob or runwhen service to use 'tracker.php' to check for new entries 
 
 Console
 -------
-It's possible to run the 'tracker.php' PHP script in the conole.
+It's possible to run the 'tracker.php' PHP script in the console.
 
 ```
 php tracker.php -console
 ```
 
 The output are the found entries array using the *print_r()* function.
+
+Libraries
+-------
+[PHP Simple HTML DOM Parser] (http://simplehtmldom.sourceforge.net/)
 
 License
 -------
