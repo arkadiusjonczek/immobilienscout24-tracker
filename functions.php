@@ -27,7 +27,7 @@ function get_content($url)
         return FALSE;
     }
     
-    // convert to utf-8 encoding
+    // convert to UTF8 encoding
     // TODO: do not use constant strings
     $content = mb_convert_encoding($content, 'utf-8', 'iso-8859-15');
 
@@ -37,44 +37,65 @@ function get_content($url)
 // get all entries from the HTML page
 function get_entries($html)
 {
-    $base_url = "http://www.immobilienscout24.de";
+    // pattern for our url
     $expose_url_pattern = "http://www.immobilienscout24.de/expose/{id}";
     
     // found entries
     $entries = array();
     
-    $ul = $html->find('ul[id=resultListItems]')[0];
-    foreach ($ul->children() as $li)
+    if ($html)
     {
-        $entry = array();
-        
-        if ($li->attr['class'] === 'is24-banner') continue;
-        
-        $id = (int) $li->attr['data-obid'];
-        
-        $a = $li->find('a[class=preview box]')[0];
-        $picture_url = array_key_exists('data-src', $a->children(0)->attr) ? $a->children(0)->attr['data-src'] : $base_url . $a->children(0)->attr['src'];
-        
-        $h3 = $li->find('h3[class=medialist__heading mvn prm]')[0];
-        $title = $h3->find('a')[0]->innertext;
-        
-        $div = $li->find('div[class=medialist__address_shown]')[0];
-        $subtitle = $div->innertext;
-        
-        $div2 = $li->find('div[class=line medialist__criteria hideable]')[0];
-        $price = $div2->children(0)->children(1)->innertext;
-        $area = $div2->children(1)->children(1)->innertext;
-        $rooms = $div2->children(2)->children(1)->innertext;
-        
-        $entry['id'] = $id;
-        $entry['title'] = $title;
-        $entry['subtitle'] = $subtitle;
-        $entry['price'] = $price;
-        $entry['area'] = $area;
-        $entry['rooms'] = $rooms;
-        $entry['url'] = str_replace('{id}', $id, $expose_url_pattern);
-        $entry['picture_url'] = $picture_url;
-        $entries["$id"] = $entry;
+        $ul = $html->find('ul[id=resultListItems]', 0);
+        if ($ul)
+        {
+            foreach ($ul->children() as $li)
+            {
+                $entry = array();
+                
+                if ($li->attr['class'] === 'is24-banner') continue;
+                
+                $id = (int) $li->attr['data-obid'];
+
+                if ($id === 0) continue;
+                
+                $a = $li->find('a[class=preview box]', 0);
+                if ($a)
+                {
+                    $picture_url = array_key_exists('data-src', $a->children(0)->attr) ? 
+                        $a->children(0)->attr['data-src'] : $a->children(0)->attr['src'];
+                }
+                
+                $h3 = $li->find('h3[class=medialist__heading mvn prm]', 0);
+                if ($h3)
+                {
+                    $title = $h3->find('a', 0)->innertext;
+                }
+
+                $div_address = $li->find('div[class=medialist__address_shown]', 0);
+                if ($div_address)
+                {
+                    $subtitle = $div_address->innertext;
+                }
+
+                $div_details = $li->find('div[class=line medialist__criteria hideable]', 0);
+                if ($div_details)
+                {
+                    $price = $div_details->children(0)->children(1)->innertext;
+                    $area = $div_details->children(1)->children(1)->innertext;
+                    $rooms = $div_details->children(2)->children(1)->innertext;
+                }
+                
+                $entry['id'] = $id;
+                $entry['title'] = $title;
+                $entry['subtitle'] = $subtitle;
+                $entry['price'] = $price;
+                $entry['area'] = $area;
+                $entry['rooms'] = $rooms;
+                $entry['url'] = str_replace('{id}', $id, $expose_url_pattern);
+                $entry['picture_url'] = $picture_url;
+                $entries["$id"] = $entry;
+            }
+        }
     }
     
     return $entries;

@@ -20,7 +20,7 @@ try
 	$stmt = $pdo->query($sql);
 	$entries = $stmt->fetchAll();
 	
-	$output_body = render($config['template'], array('entries' => $entries));
+	$output_body = render($config['email_template'], array('entries' => $entries));
 	
 	header("Content-Type: text/html; charset=utf-8");
 	echo $output_body;

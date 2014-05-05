@@ -17,7 +17,7 @@
 				<img src="<?php echo $entry['picture_url']; ?>" /><br />
 				<span id="title"><a href="<?php echo $entry['url']; ?>"><?php echo $entry['title']; ?></a></span><br />
 				<span id="subtitle"><?php echo $entry['subtitle']; ?></span><br />
-				<span id="details"><?php echo $entry['price']; ?> | <?php echo $entry['area']; ?> | <?php echo $entry['rooms']; ?> Zimmer</span>
+				<span id="details"><?php echo $entry['price']; ?>, <?php echo $entry['area']; ?>, <?php echo $entry['rooms']; ?> Zimmer</span>
 			</div>
 		<?php endforeach; ?>
 	</body>

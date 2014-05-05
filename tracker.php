@@ -18,6 +18,9 @@ require_once $simple_html_dom;
 // if user runs script using -console parameter
 $is_console = count($argv) >= 2 && in_array('-console', $argv);
 
+// if user runs script using -verbose parameter
+$is_verbose = count($argv) >= 2 && in_array('-verbose', $argv);
+
 // use timestamp for content debugging
 $timestamp = time();
 
@@ -64,16 +67,43 @@ foreach ($search_urls as $search_url)
 
         if ($is_console)
         {
-            echo 'Parsing ' . $url . "\r\n";
+            echo "\r\n" . 'Parsing ' . $url . "\r\n";
         }
 
-        $content = get_content($url);
-        $html = str_get_html($content);
+        $retrys = 3;
+        do
+        {
+            $content = get_content($url);
+
+            if (!$content)
+            {
+                $retrys--;
+
+                if ($is_verbose)
+                {
+                   echo 'Couldn\'t get content.. retrying (' . $retrys-- . ')' . "\r\n";
+                }
+            }
+        } while (!$content && $retrys > 0);
+
+        $retrys = 3;
+        do
+        {
+            $html = str_get_html($content);
+
+            if (!$html)
+            {
+                if ($is_verbose)
+                {
+                   echo 'Couldn\'t parse content.. retrying (' . $retrys-- . ')' . "\r\n";
+                }
+            }
+        } while (!$html && $retrys > 0);
 
         $entries_page = get_entries($html);
         $entries = $entries + $entries_page;
 
-        if ($is_console)
+        if ($is_verbose)
         {
             echo 'Found ' . count($entries_page) . ' Entries' . "\r\n";
         }
@@ -88,7 +118,7 @@ foreach ($search_urls as $search_url)
             {
                 $pages = (int) $ul_pager[0]->last_child()->children(0)->innertext;
 
-                if ($is_console)
+                if ($is_verbose)
                 {
                     echo 'Found ' . $pages . ' Pages' . "\r\n";
                 }
@@ -116,7 +146,7 @@ try
 
         if (!$created_db)
         {
-            echo 'Error creating SQLite Database.';
+            echo 'Error creating SQLite Database.' . "\r\n";
             exit;
         }
     }
@@ -187,7 +217,7 @@ try
         );
     }
     
-    $output_body = render($config['template'], array('entries' => $new_entries_full));
+    $output_body = render($config['email_template'], array('entries' => $new_entries_full));
 
     if (php_sapi_name() != 'cli')
     {
@@ -196,13 +226,18 @@ try
     }
     else
     {
+        if ($is_console || $is_verbose)
+        {
+            echo "\r\n" . 'Found ' . count($new_entries_full) . ' New Entries' . "\r\n";
+        }
+
         if (count($new_entries_full) > 0)
         {
             if ($is_console)
             {
-                echo '' . count($new_entries_full) . ' New Entries' . "\r\n";
-
-                print_r($new_entries_full);
+                $output_body = render($config['console_template'], array('entries' => $new_entries_full));
+                
+                echo $output_body;
             }
             else
             {
