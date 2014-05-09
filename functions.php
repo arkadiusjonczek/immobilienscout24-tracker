@@ -26,7 +26,15 @@ function get_content($url)
     {
         return FALSE;
     }
-    
+
+    $content_length = strlen($content);
+
+    global $config;
+    if ($config['debug'] === true)
+    {
+        debug('url = ' . $url . ', length = ' . $content_length, 'Content Length');
+    }
+
     // convert to UTF8 encoding
     // TODO: do not use constant strings
     $content = mb_convert_encoding($content, 'utf-8', 'iso-8859-15');
@@ -37,8 +45,10 @@ function get_content($url)
 // get all entries from the HTML page
 function get_entries($html)
 {
+    $base_url = 'http://www.immobilienscout24.de';
+
     // pattern for our url
-    $expose_url_pattern = "http://www.immobilienscout24.de/expose/{id}";
+    $expose_url_pattern = 'http://www.immobilienscout24.de/expose/{id}';
     
     // found entries
     $entries = array();
@@ -57,42 +67,53 @@ function get_entries($html)
                 $id = (int) $li->attr['data-obid'];
 
                 if ($id === 0) continue;
+
+                $entry['id'] = $id;
+                $entry['url'] = str_replace('{id}', $id, $expose_url_pattern);
                 
-                $a = $li->find('a[class=preview box]', 0);
-                if ($a)
+                $img = $li->find('img[class=galleryElement shown]', 0);
+                if ($img)
                 {
-                    $picture_url = array_key_exists('data-src', $a->children(0)->attr) ? 
-                        $a->children(0)->attr['data-src'] : $a->children(0)->attr['src'];
+                    $picture_url = array_key_exists('data-src', $img->attr) ? 
+                        $img->attr['data-src'] : $img->attr['src'];
+
+                    if (strpos($picture_url, 'http://') !== 0)
+                    {
+                        $picture_url = $base_url . $picture_url;
+                    }
+
+                    $entry['picture_url'] = $picture_url;
                 }
                 
-                $h3 = $li->find('h3[class=medialist__heading mvn prm]', 0);
-                if ($h3)
+                $span = $li->find('span[class=title]', 0);
+                if ($span)
                 {
-                    $title = $h3->find('a', 0)->innertext;
+                    $title = $span->find('a', 0)->innertext;
+
+                    $entry['title'] = $title;
                 }
 
-                $div_address = $li->find('div[class=medialist__address_shown]', 0);
-                if ($div_address)
+                $span_address = $li->find('span[class=street]', 0);
+                if ($span_address)
                 {
-                    $subtitle = $div_address->innertext;
+                    $subtitle = $span_address->innertext;
+
+                    $entry['subtitle'] = $subtitle;
                 }
 
-                $div_details = $li->find('div[class=line medialist__criteria hideable]', 0);
+                $div_details = $li->find('div[class=resultlist_criteria]', 0);
                 if ($div_details)
                 {
                     $price = $div_details->children(0)->children(1)->innertext;
                     $area = $div_details->children(1)->children(1)->innertext;
                     $rooms = $div_details->children(2)->children(1)->innertext;
+                    $rooms = substr($rooms, 0, strpos($rooms, '<'));
+
+                    $entry['price'] = trim($price);
+                    $entry['area'] = trim($area);
+                    $entry['rooms'] = trim($rooms);
                 }
-                
-                $entry['id'] = $id;
-                $entry['title'] = $title;
-                $entry['subtitle'] = $subtitle;
-                $entry['price'] = $price;
-                $entry['area'] = $area;
-                $entry['rooms'] = $rooms;
-                $entry['url'] = str_replace('{id}', $id, $expose_url_pattern);
-                $entry['picture_url'] = $picture_url;
+
                 $entries["$id"] = $entry;
             }
         }

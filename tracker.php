@@ -16,10 +16,10 @@ $simple_html_dom = __DIR__ . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR .
 require_once $simple_html_dom;
 
 // if user runs script using -console parameter
-$is_console = count($argv) >= 2 && in_array('-console', $argv);
+define('CONSOLE', count($argv) >= 2 && in_array('-console', $argv));
 
 // if user runs script using -verbose parameter
-$is_verbose = count($argv) >= 2 && in_array('-verbose', $argv);
+define('VERBOSE', count($argv) >= 2 && in_array('-verbose', $argv));
 
 // use timestamp for content debugging
 $timestamp = time();
@@ -65,7 +65,7 @@ foreach ($search_urls as $search_url)
     {
         $url = str_replace('{page}', $i, $search_url);
 
-        if ($is_console)
+        if (CONSOLE)
         {
             echo "\r\n" . 'Parsing ' . $url . "\r\n";
         }
@@ -79,7 +79,7 @@ foreach ($search_urls as $search_url)
             {
                 $retrys--;
 
-                if ($is_verbose)
+                if (VERBOSE)
                 {
                    echo 'Couldn\'t get content.. retrying (' . $retrys-- . ')' . "\r\n";
                 }
@@ -93,7 +93,7 @@ foreach ($search_urls as $search_url)
 
             if (!$html)
             {
-                if ($is_verbose)
+                if (VERBOSE)
                 {
                    echo 'Couldn\'t parse content.. retrying (' . $retrys-- . ')' . "\r\n";
                 }
@@ -103,7 +103,7 @@ foreach ($search_urls as $search_url)
         $entries_page = get_entries($html);
         $entries = $entries + $entries_page;
 
-        if ($is_verbose)
+        if (VERBOSE)
         {
             echo 'Found ' . count($entries_page) . ' Entries' . "\r\n";
         }
@@ -118,7 +118,7 @@ foreach ($search_urls as $search_url)
             {
                 $pages = (int) $ul_pager[0]->last_child()->children(0)->innertext;
 
-                if ($is_verbose)
+                if (VERBOSE)
                 {
                     echo 'Found ' . $pages . ' Pages' . "\r\n";
                 }
@@ -174,10 +174,10 @@ try
     }
         
     // look for new and existing entries
-    // new entries have not same id AND title as an existing entry
+    // new entries have not the same id AND title as an existing entry
     foreach ($entries as $id => $entry)
     {
-        if (array_key_exists($id, $db_entries) && $db_entries[$id]['title'] === $entry['title'])
+        if (array_key_exists($id, $db_entries) && ($db_entries[$id]['title'] === $entry['title']))
         {
             $existing_entries[] = $id;
         }
@@ -226,14 +226,14 @@ try
     }
     else
     {
-        if ($is_console || $is_verbose)
+        if (CONSOLE || VERBOSE)
         {
             echo "\r\n" . 'Found ' . count($new_entries_full) . ' New Entries' . "\r\n";
         }
 
         if (count($new_entries_full) > 0)
         {
-            if ($is_console)
+            if (CONSOLE)
             {
                 $output_body = render($config['console_template'], array('entries' => $new_entries_full));
                 
