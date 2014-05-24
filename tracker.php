@@ -3,7 +3,8 @@
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
 
-if (!file_exists('config.php'))
+$config_file = __DIR__ . DIRECTORY_SEPARATOR . 'config.php';
+if (!file_exists($config_file))
 {
     die("Config file 'config.php' doesn't exist. Please use 'config.sample.php' to create one.\r\n");
 }

@@ -85,12 +85,23 @@ function get_entries($html)
                     $entry['picture_url'] = $picture_url;
                 }
                 
-                $span = $li->find('span[class=title]', 0);
-                if ($span)
+                $span_title = $li->find('span[class=title]', 0);
+                if ($span_title)
                 {
-                    $title = $span->find('a', 0)->innertext;
+                    $title = $span_title->find('a', 0)->innertext;
 
                     $entry['title'] = $title;
+                }
+                else
+                {
+                    $div_title = $li->find('div[class=title]', 0);
+
+                    if ($div_title)
+                    {
+                        $title = $div_title->find('a', 0)->innertext;
+
+                        $entry['title'] = $title;
+                    }
                 }
 
                 $span_address = $li->find('span[class=street]', 0);
