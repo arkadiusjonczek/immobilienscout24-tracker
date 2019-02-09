@@ -1,10 +1,10 @@
-<?php foreach ($param['entries'] as $entry): ?>
+<?php foreach ($data['entries'] as $entry): ?>
 
 ---
-<?php echo $entry['id'] . "\r\n"; ?>
-<?php echo $entry['title'] . "\r\n"; ?>
-<?php echo $entry['subtitle'] . "\r\n"; ?>
-<?php echo $entry['price']; ?>, <?php echo $entry['area']; ?>, <?php echo $entry['rooms']; ?> Zimmer <?php echo "\r\n"; ?>
-<?php echo $entry['url'] . "\r\n"; ?>
+<?php echo $entry->getId() . "\r\n"; ?>
+<?php echo $entry->getTitle() . "\r\n"; ?>
+<?php echo $entry->getSubtitle() . "\r\n"; ?>
+<?php echo $entry->getPrice(); ?>, <?php echo $entry->getArea(); ?>, <?php echo $entry->getRooms(); ?> Zimmer <?php echo "\r\n"; ?>
+<?php echo $entry->getUrl() . "\r\n"; ?>
 
 <?php endforeach; ?>

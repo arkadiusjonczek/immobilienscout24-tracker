@@ -11,13 +11,13 @@
 		</style>
 	</head>
 	<body>
-		<?php foreach ($param['entries'] as $entry): ?>
+		<?php foreach ($data['entries'] as $entry): ?>
 			<div style="margin: 20px 0;">
-				<span id="expose-id"><?php echo $entry['id']; ?></span><br />
-				<img src="<?php echo $entry['picture_url']; ?>" /><br />
-				<span id="title"><a href="<?php echo $entry['url']; ?>"><?php echo $entry['title']; ?></a></span><br />
-				<span id="subtitle"><?php echo $entry['subtitle']; ?></span><br />
-				<span id="details"><?php echo $entry['price']; ?>, <?php echo $entry['area']; ?>, <?php echo $entry['rooms']; ?> Zimmer</span>
+				<span id="expose-id"><?php echo $entry->getId(); ?></span><br />
+				<img src="<?php echo $entry->getPictureUrl(); ?>" /><br />
+				<span id="title"><a href="<?php echo $entry->getUrl(); ?>"><?php echo $entry->getTitle(); ?></a></span><br />
+				<span id="subtitle"><?php echo $entry->getSubtitle(); ?></span><br />
+				<span id="details"><?php echo $entry->getPrice(); ?>, <?php echo $entry->getArea(); ?>, <?php echo $entry->getRooms(); ?> Zimmer</span>
 			</div>
 		<?php endforeach; ?>
 	</body>
